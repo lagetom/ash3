@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>🖍️ 단어 형광펜</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6097617241369024"
+   crossorigin="anonymous"></script>
+  <style>
+    @font-face {
+      font-family: 'Ridibatang';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/RIDIBatang.woff') format('woff');
+      font-weight: normal;
+      font-display: swap;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --editor-font-size: 16px;
+    }
+
+    body {
+      font-family: 'IBM Plex Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #1a1f3a 0%, #2d4578 30%, #4a6fa5 60%, #ff8a65 85%, #ffab91 100%);
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 파도 애니메이션 */
+    @keyframes wave {
+      0%, 100% { transform: translateX(0) translateY(0); }
+      25% { transform: translateX(-5%) translateY(-2%); }
+      50% { transform: translateX(-10%) translateY(0); }
+      75% { transform: translateX(-5%) translateY(2%); }
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      background: 
+        radial-gradient(ellipse at 30% 60%, rgba(74, 111, 165, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 40%, rgba(255, 138, 101, 0.25) 0%, transparent 50%);
+      animation: wave 15s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .main-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(15px);
+      padding: 20px 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #2d4578 0%, #ff8a65 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .home-btn {
+      background: linear-gradient(135deg, #4a6fa5 0%, #2d4578 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
+    }
+
+    .home-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(74, 111, 165, 0.4);
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: minmax(250px, 300px) 1fr 1fr;
+      gap: 20px;
+      min-height: calc(100vh - 140px);
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .panel-header h3 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+      color: #2d4578;
+    }
+
+    /* 글꼴 크기 조절 */
+    .font-controls {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .font-controls button {
+      font-size: 14px;
+      padding: 4px 10px;
+      background: #f0f0f0;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .font-controls button:hover {
+      background: #e3f2fd;
+      border-color: #4a6fa5;
+    }
+
+    #fontSizeDisplay {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d4578;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    /* 입력창 */
+    #editor {
+      resize: vertical;
+      font-family: 'Ridibatang', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+
+    #editor, #preview {
+      width: 100%;
+      flex-grow: 1;
+      font-size: var(--editor-font-size);
+      line-height: 1.7;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 14px;
+      background: #f8f9fa;
+      color: #222;
+      font-family: 'Ridibatang', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+
+    #editor:focus {
+      outline: none;
+      border-color: #4a6fa5;
+      box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.15);
+    }
+
+    #preview {
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      overflow-y: auto;
+      min-height: 300px;
+    }
+
+    /* 단어 목록 */
+    #keyword-list {
+      list-style: none;
+      margin-top: 15px;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+
+    .keyword-group {
+      margin-bottom: 12px;
+    }
+
+    .keyword-group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .keyword-group-header:hover {
+      background: #e3f2fd;
+    }
+
+    .keyword-group-count {
+      font-size: 12px;
+      color: #666;
+      font-weight: normal;
+    }
+
+    .keyword-group-items {
+      margin-top: 6px;
+      padding-left: 8px;
+    }
+
+    .keyword-group-items.collapsed {
+      display: none;
+    }
+
+    .keyword-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      background: #f8f9fa;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .keyword-item:hover {
+      background: #e3f2fd;
+    }
+
+    .keyword-item-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .keyword-item span {
+      font-weight: 500;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .keyword-count {
+      font-size: 12px;
+      color: #666;
+      background: #fff;
+      padding: 2px 8px;
+      border-radius: 10px;
+      min-width: 35px;
+      text-align: center;
+      border: 1px solid #e0e0e0;
+    }
+
+    .keyword-item input[type="color"] {
+      min-width: 28px;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .keyword-item button {
+      background: none;
+      border: none;
+      color: #e53935;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 4px;
+      transition: transform 0.2s;
+    }
+
+    .keyword-item button:hover {
+      transform: scale(1.2);
+    }
+
+    /* 단어 추가 폼 */
+    #add-keyword-form {
+      display: flex;
+      gap: 8px;
+    }
+
+    #new-keyword {
+      flex-grow: 1;
+      padding: 10px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      background: #f8f9fa;
+      color: #222;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    #new-keyword:focus {
+      outline: none;
+      border-color: #4a6fa5;
+    }
+
+    #add-btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #4a6fa5 0%, #2d4578 100%);
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    #add-btn:hover {
+      box-shadow: 0 4px 15px rgba(74, 111, 165, 0.4);
+    }
+
+    /* 색상 팔레트 */
+    .color-palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .color-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #e0e0e0;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.15);
+      border-color: #4a6fa5;
+    }
+
+    /* 버튼 스타일 */
+    button {
+      font-family: inherit;
+    }
+
+    .panel-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .panel-controls button {
+      border: 2px solid #e0e0e0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+      color: #333;
+    }
+
+    .panel-controls button:hover {
+      background: #e3f2fd;
+      border-color: #4a6fa5;
+    }
+
+    .panel-controls button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .keyword-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 15px;
+      border-top: 2px solid #e0e0e0;
+    }
+
+    .keyword-controls button {
+      border: 2px solid #e0e0e0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+      color: #333;
+    }
+
+    .keyword-controls button:hover {
+      background: #e3f2fd;
+      border-color: #4a6fa5;
+    }
+
+    /* 버전 목록 */
+    #version-list-container {
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    #version-list-container strong {
+      color: #2d4578;
+    }
+
+    #version-list {
+      max-height: 100px;
+      overflow-y: auto;
+      border: 2px solid #e0e0e0;
+      padding: 8px;
+      border-radius: 10px;
+      margin-top: 8px;
+      background: #f8f9fa;
+    }
+
+    .version-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .version-item:hover {
+      background: #e3f2fd;
+    }
+
+    .version-item button {
+      font-size: 16px;
+      background: none;
+      color: #e53935;
+      padding: 0 5px;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* 모달 */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background: #fff;
+      margin: 5% auto;
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .modal-content h3 {
+      margin: 0 0 20px 0;
+      color: #2d4578;
+      font-size: 20px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 24px;
+      color: #888;
+      transition: color 0.3s;
+    }
+
+    .modal-close:hover {
+      color: #2d4578;
+    }
+
+    .edit-modal-section {
+      margin-bottom: 20px;
+      padding: 18px;
+      background: #f8f9fa;
+      border-radius: 12px;
+    }
+
+    .edit-modal-section h4 {
+      margin: 0 0 12px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d4578;
+    }
+
+    .edit-modal-form {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .edit-modal-form input[type="text"] {
+      flex: 1;
+      min-width: 120px;
+      padding: 10px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      background: #fff;
+      color: #222;
+      font-size: 14px;
+    }
+
+    .edit-modal-form input[type="text"]:focus {
+      outline: none;
+      border-color: #4a6fa5;
+    }
+
+    .edit-modal-form button {
+      flex-shrink: 0;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      background: linear-gradient(135deg, #ff8a65 0%, #ff7043 100%);
+      transition: all 0.3s;
+    }
+
+    .edit-modal-form button:hover {
+      box-shadow: 0 4px 15px rgba(255, 138, 101, 0.4);
+    }
+
+    .edit-modal-form span {
+      font-weight: bold;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .edit-options {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .edit-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+    }
+
+    .edit-option input[type="checkbox"] {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+      accent-color: #4a6fa5;
+    }
+
+    /* 푸터 */
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 32px;
+      animation: float-wave 3s ease-in-out infinite;
+    }
+
+    @keyframes float-wave {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-6px) rotate(-3deg); }
+      75% { transform: translateY(-6px) rotate(3deg); }
+    }
+
+    /* 반응형 */
+    @media (max-width: 1000px) {
+      .container {
+        grid-template-columns: 1fr;
+        height: auto;
+        gap: 15px;
+      }
+
+      .panel {
+        min-height: auto;
+      }
+
+      #editor {
+        min-height: 200px;
+      }
+
+      #preview {
+        min-height: 150px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .header {
+        padding: 15px 20px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .panel {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+    <header class="header">
+      <h1>🖍️ 단어 형광펜</h1>
+      <button class="home-btn" id="main-link-btn" title="돌아가기">🌊</button>
+    </header>
+
+    <div class="container">
+      <!-- 단어 관리 패널 -->
+      <div class="panel">
+        <div class="panel-header"><h3>📝 단어 관리</h3></div>
+
+        <form id="add-keyword-form" onsubmit="addKeyword(); return false;">
+          <input type="text" id="new-keyword" placeholder="단어 입력...">
+          <input type="color" id="new-color" value="#a5d8ff">
+          <button id="add-btn" type="submit">+</button>
+        </form>
+        <div class="color-palette" id="color-palette"></div>
+
+        <div id="keyword-list"></div>
+
+        <div class="keyword-controls">
+          <button onclick="clearAllKeywords()">✨ 전체 삭제</button>
+          <button onclick="document.getElementById('fileInput').click()">📂 불러오기</button>
+          <button onclick="exportKeywords()">📤 내보내기</button>
+          <input type="file" id="fileInput" accept=".txt" style="display: none;">
+        </div>
+      </div>
+
+      <!-- 원본 패널 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📋 원본</h3>
+          <div class="font-controls">
+            <button id="decreaseFontBtn" title="글자 작게">−</button>
+            <span id="fontSizeDisplay">16px</span>
+            <button id="increaseFontBtn" title="글자 크게">+</button>
+          </div>
+        </div>
+        <div class="panel-controls">
+          <button onclick="pasteToEditor(this)">📝 붙여넣기</button>
+          <button onclick="copyEditor(this)">📋 복사</button>
+          <button onclick="saveVersion()">💾 저장</button>
+          <button onclick="clearEditor()">🧹 초기화</button>
+          <button onclick="openEditModal()">✒️ 편집</button>
+          <button onclick="undoEdit()" id="undoBtn" disabled>✨ 복구</button>
+          <button id="translate-ko-en-btn" title="한→영 번역">🇬🇧</button>
+          <button id="translate-en-ko-btn" title="영→한 번역">🇰🇷</button>
+          <button id="spell-check-btn" title="맞춤법 검사">🔍</button>
+        </div>
+
+        <textarea id="editor" placeholder="여기에 텍스트를 입력하거나 붙여넣으세요..."></textarea>
+
+        <div id="version-list-container">
+          <strong>📚 버전 목록</strong>
+          <div id="version-list"></div>
+        </div>
+      </div>
+
+      <!-- 미리보기 패널 -->
+      <div class="panel">
+        <div class="panel-header"><h3>👀 미리보기</h3></div>
+        <div id="preview"></div>
+      </div>
+    </div>
+
+    <div class="footer">🌊</div>
+  </div>
+
+  <!-- 편집 모달 -->
+  <div id="editModal" class="modal" onclick="closeEditModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeEditModal()">&times;</span>
+      <h3>✒️ 편집 도구</h3>
+
+      <div class="edit-modal-section">
+        <h4>🗑️ 범위 삭제</h4>
+        <div class="edit-modal-form">
+          <input type="text" id="delete-start-modal" placeholder="시작 단어">
+          <span>→</span>
+          <input type="text" id="delete-end-modal" placeholder="끝 단어 (선택)">
+          <button onclick="deleteRangeFromModal()">삭제</button>
+        </div>
+        <div class="edit-options">
+          <label class="edit-option">
+            <input type="checkbox" id="delete-by-line">
+            줄 단위 삭제
+          </label>
+          <label class="edit-option">
+            <input type="checkbox" id="delete-regex">
+            정규식 사용
+          </label>
+        </div>
+      </div>
+
+      <div class="edit-modal-section">
+        <h4>🔄 단어 교체</h4>
+        <div class="edit-modal-form">
+          <input type="text" id="replace-from-modal" placeholder="찾을 단어">
+          <span>→</span>
+          <input type="text" id="replace-to-modal" placeholder="바꿀 단어">
+          <button onclick="replaceFromModal()">교체</button>
+        </div>
+        <div class="edit-options">
+          <label class="edit-option">
+            <input type="checkbox" id="replace-case-sensitive">
+            대소문자 구분
+          </label>
+          <label class="edit-option">
+            <input type="checkbox" id="replace-regex">
+            정규식 사용
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const newKeywordInput = document.getElementById('new-keyword');
+    const newColorInput = document.getElementById('new-color');
+    const keywordList = document.getElementById('keyword-list');
+    const fileInput = document.getElementById('fileInput');
+    const versionList = document.getElementById('version-list');
+    const editModal = document.getElementById('editModal');
+    const undoBtn = document.getElementById('undoBtn');
+
+    const increaseFontBtn = document.getElementById('increaseFontBtn');
+    const decreaseFontBtn = document.getElementById('decreaseFontBtn');
+    const fontSizeDisplay = document.getElementById('fontSizeDisplay');
+    let currentFontSize = 16;
+
+    let keywords = [];
+    let collapsedGroups = {};
+    let undoHistory = null;
+
+    // 홈 버튼
+    document.getElementById('main-link-btn').addEventListener('click', () => {
+      window.location.href = "https://lagetom.github.io/ash/";
+    });
+
+    function applyFontSize() {
+      document.documentElement.style.setProperty('--editor-font-size', `${currentFontSize}px`);
+      fontSizeDisplay.textContent = `${currentFontSize}px`;
+    }
+
+    function changeFontSize(amount) {
+      currentFontSize += amount;
+      if (currentFontSize < 12) currentFontSize = 12;
+      if (currentFontSize > 28) currentFontSize = 28;
+      applyFontSize();
+      localStorage.setItem('highlighter_fontSize', currentFontSize);
+    }
+
+    increaseFontBtn.addEventListener('click', () => changeFontSize(1));
+    decreaseFontBtn.addEventListener('click', () => changeFontSize(-1));
+
+    function saveUndo() {
+      undoHistory = editor.value;
+      undoBtn.disabled = false;
+    }
+
+    function undoEdit() {
+      if (undoHistory !== null) {
+        editor.value = undoHistory;
+        updatePreview();
+        renderKeywords();
+        localStorage.setItem('highlighter_text', editor.value);
+        undoHistory = null;
+        undoBtn.disabled = true;
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'z' && undoHistory !== null) {
+        e.preventDefault();
+        undoEdit();
+      }
+    });
+
+    function openEditModal() {
+      editModal.style.display = 'block';
+    }
+
+    function closeEditModal(event) {
+      if (event && event.target !== editModal) return;
+      editModal.style.display = 'none';
+    }
+
+    function deleteRangeFromModal() {
+      saveUndo();
+      const text = editor.value;
+      let startMarker = document.getElementById('delete-start-modal').value;
+      let endMarker = document.getElementById('delete-end-modal').value;
+      const byLine = document.getElementById('delete-by-line').checked;
+      const useRegex = document.getElementById('delete-regex').checked;
+
+      if (!startMarker) {
+        alert('시작 단어를 입력해주세요.');
+        return;
+      }
+
+      if (byLine) {
+        const lines = text.split('\n');
+        const filtered = lines.filter(line => {
+          if (useRegex) {
+            try {
+              const regex = new RegExp(startMarker);
+              return !regex.test(line);
+            } catch (e) {
+              alert('잘못된 정규식입니다.');
+              return true;
+            }
+          } else {
+            return !line.includes(startMarker);
+          }
+        });
+        editor.value = filtered.join('\n');
+        updatePreview();
+        renderKeywords();
+        localStorage.setItem('highlighter_text', editor.value);
+        closeEditModal();
+        return;
+      }
+
+      let startRegex, startMatch;
+      try {
+        startRegex = useRegex ? new RegExp(startMarker, 'i') : new RegExp(escapeRegExp(startMarker), 'i');
+        startMatch = text.match(startRegex);
+      } catch (e) {
+        alert('잘못된 정규식입니다.');
+        return;
+      }
+
+      if (!startMatch) {
+        alert(`시작 단어("${startMarker}")를 찾을 수 없습니다.`);
+        return;
+      }
+
+      const startIndex = startMatch.index;
+
+      if (!endMarker) {
+        let newText = text.substring(0, startIndex);
+        newText = newText.replace(/(\r\n|\n|\r){2,}/g, '\n').trim();
+        editor.value = newText;
+        updatePreview();
+        renderKeywords();
+        localStorage.setItem('highlighter_text', editor.value);
+        closeEditModal();
+        return;
+      }
+
+      const searchFromIndex = startIndex + startMatch[0].length;
+      const textAfterStart = text.substring(searchFromIndex);
+
+      let endRegex, endMatch;
+      try {
+        endRegex = useRegex ? new RegExp(endMarker, 'i') : new RegExp(escapeRegExp(endMarker), 'i');
+        endMatch = textAfterStart.match(endRegex);
+      } catch (e) {
+        alert('잘못된 정규식입니다.');
+        return;
+      }
+
+      if (!endMatch) {
+        alert(`끝 단어("${endMarker}")를 찾을 수 없습니다.`);
+        return;
+      }
+
+      const endIndex = searchFromIndex + endMatch.index + endMatch[0].length;
+      let newText = text.substring(0, startIndex) + text.substring(endIndex);
+      newText = newText.replace(/(\r\n|\n|\r){2,}/g, '\n').trim();
+      editor.value = newText;
+      updatePreview();
+      renderKeywords();
+      localStorage.setItem('highlighter_text', editor.value);
+      closeEditModal();
+    }
+
+    function replaceFromModal() {
+      saveUndo();
+      const fromText = document.getElementById('replace-from-modal').value;
+      const toText = document.getElementById('replace-to-modal').value;
+      const caseSensitive = document.getElementById('replace-case-sensitive').checked;
+      const useRegex = document.getElementById('replace-regex').checked;
+
+      if (!fromText) {
+        alert('찾을 단어를 입력해주세요.');
+        return;
+      }
+
+      let flags = caseSensitive ? 'g' : 'gi';
+      let regex;
+
+      try {
+        regex = useRegex ? new RegExp(fromText, flags) : new RegExp(escapeRegExp(fromText), flags);
+      } catch (e) {
+        alert('잘못된 정규식입니다.');
+        return;
+      }
+
+      const newText = editor.value.replace(regex, toText);
+
+      if (newText === editor.value) {
+        alert('일치하는 단어를 찾을 수 없습니다.');
+        return;
+      }
+
+      editor.value = newText;
+      updatePreview();
+      renderKeywords();
+      localStorage.setItem('highlighter_text', editor.value);
+      closeEditModal();
+    }
+
+    function saveKeywords() {
+      localStorage.setItem('highlighter_keywords', JSON.stringify(keywords));
+    }
+
+    function loadKeywords() {
+      const savedKeywords = localStorage.getItem('highlighter_keywords');
+      if (savedKeywords) {
+        keywords = JSON.parse(savedKeywords);
+      } else {
+        keywords = [];
+      }
+      renderKeywords();
+    }
+
+    function countKeywordInText(keyword) {
+      const text = editor.value;
+      if (!keyword || !text) return 0;
+      const regex = new RegExp(escapeRegExp(keyword), 'g');
+      const matches = text.match(regex);
+      return matches ? matches.length : 0;
+    }
+
+    function renderKeywords() {
+      keywordList.innerHTML = '';
+
+      if (keywords.length === 0) {
+        keywordList.innerHTML = '<em style="color: #888; font-size: 14px; padding: 10px;">등록된 단어가 없습니다.</em>';
+        updatePreview();
+        saveKeywords();
+        return;
+      }
+
+      const groups = {};
+      keywords.forEach((item, index) => {
+        const color = item.color;
+        if (!groups[color]) {
+          groups[color] = [];
+        }
+        groups[color].push({ ...item, originalIndex: index });
+      });
+
+      Object.keys(groups).forEach(color => {
+        const items = groups[color];
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'keyword-group';
+
+        const totalCount = items.reduce((sum, item) => sum + countKeywordInText(item.keyword), 0);
+
+        const header = document.createElement('div');
+        header.className = 'keyword-group-header';
+        header.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 16px; height: 16px; background-color: ${color}; border-radius: 4px; display: inline-block;"></span>
+            <span>${items.length}개 단어</span>
+          </div>
+          <span class="keyword-group-count">${totalCount}회</span>
+        `;
+
+        const itemsContainer = document.createElement('div');
+        itemsContainer.className = 'keyword-group-items';
+        if (collapsedGroups[color]) {
+          itemsContainer.classList.add('collapsed');
+        }
+
+        header.onclick = () => {
+          itemsContainer.classList.toggle('collapsed');
+          collapsedGroups[color] = itemsContainer.classList.contains('collapsed');
+        };
+
+        groupDiv.appendChild(header);
+        groupDiv.appendChild(itemsContainer);
+
+        items.forEach((item) => {
+          const index = keywords.indexOf(item);
+          const count = countKeywordInText(item.keyword);
+          const li = document.createElement('div');
+          li.className = 'keyword-item';
+          li.innerHTML = `
+            <div class="keyword-item-content">
+              <span>${escapeHtml(item.keyword)}</span>
+              <span class="keyword-count">${count}회</span>
+            </div>
+            <div>
+              <input type="color" value="${item.color}" onchange="updateColor(${index}, this.value)">
+              <button onclick="deleteKeyword(${index})">&times;</button>
+            </div>
+          `;
+          itemsContainer.appendChild(li);
+        });
+
+        keywordList.appendChild(groupDiv);
+      });
+
+      updatePreview();
+      saveKeywords();
+    }
+
+    function addKeyword() {
+      const keyword = newKeywordInput.value.trim();
+      if (keyword && !keywords.some(item => item.keyword === keyword)) {
+        keywords.push({ keyword, color: newColorInput.value });
+        newKeywordInput.value = '';
+        newKeywordInput.focus();
+        renderKeywords();
+      }
+    }
+
+    function deleteKeyword(index) {
+      keywords.splice(index, 1);
+      renderKeywords();
+    }
+
+    function updateColor(index, color) {
+      keywords[index].color = color;
+      updatePreview();
+      saveKeywords();
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function updatePreview() {
+      let text = editor.value;
+      if (keywords.length === 0) {
+        preview.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+        return;
+      }
+
+      const allMatches = [];
+      keywords.forEach(item => {
+        const regex = new RegExp(escapeRegExp(item.keyword), 'g');
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+          allMatches.push({
+            start: match.index,
+            end: match.index + match[0].length,
+            color: item.color,
+            keyword: match[0]
+          });
+        }
+      });
+
+      allMatches.sort((a, b) => a.start - b.start);
+
+      let highlightedHtml = '';
+      let lastIndex = 0;
+      allMatches.forEach(match => {
+        if (match.start >= lastIndex) {
+          highlightedHtml += escapeHtml(text.substring(lastIndex, match.start));
+          highlightedHtml += `<span style="background-color: ${match.color}; padding: 1px 3px; border-radius: 3px;">${escapeHtml(match.keyword)}</span>`;
+          lastIndex = match.end;
+        }
+      });
+      highlightedHtml += escapeHtml(text.substring(lastIndex));
+      preview.innerHTML = highlightedHtml.replace(/\n/g, '<br>');
+    }
+
+    function clearAllKeywords() {
+      if (keywords.length === 0) return;
+      if (confirm('정말로 모든 단어를 삭제하시겠습니까?')) {
+        keywords = [];
+        renderKeywords();
+      }
+    }
+
+    function exportKeywords() {
+      if (keywords.length === 0) {
+        alert('내보낼 단어가 없습니다.');
+        return;
+      }
+      const text = keywords.map(k => `${k.keyword},${k.color}`).join('\n');
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'keywords.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const lines = e.target.result.split('\n').filter(line => line.trim() !== '');
+        keywords = lines.map(line => {
+          const parts = line.split(',');
+          return { keyword: (parts[0] || '').trim(), color: (parts[1] || '#a5d8ff').trim() };
+        });
+        renderKeywords();
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    });
+
+    const VERSION_STORAGE_KEY = 'highlighter_versions';
+
+    function saveVersion() {
+      const content = editor.value.trim();
+      if (!content) {
+        alert('내용이 비어있으면 저장할 수 없습니다.');
+        return;
+      }
+      let versions = JSON.parse(localStorage.getItem(VERSION_STORAGE_KEY) || '[]');
+      const timestamp = new Date().toLocaleString('ko-KR');
+      versions.unshift({ time: timestamp, text: content });
+      if (versions.length > 20) versions.pop();
+      localStorage.setItem(VERSION_STORAGE_KEY, JSON.stringify(versions));
+      renderVersionList();
+      alert(`버전이 저장되었습니다 (${timestamp})`);
+    }
+
+    function renderVersionList() {
+      let versions = JSON.parse(localStorage.getItem(VERSION_STORAGE_KEY) || '[]');
+      versionList.innerHTML = versions.length === 0 ? '<em style="color: #888; font-size: 13px;">저장된 버전 없음</em>' : '';
+      versions.forEach((v, idx) => {
+        const div = document.createElement('div');
+        div.className = 'version-item';
+        div.innerHTML = `<span>${v.time}</span><button onclick="deleteVersion(${idx})">&times;</button>`;
+        div.onclick = (e) => {
+          if (e.target.tagName === 'BUTTON') return;
+          if (confirm('이 버전을 불러오시겠습니까? 현재 내용은 사라집니다.')) {
+            editor.value = v.text;
+            updatePreview();
+            renderKeywords();
+          }
+        };
+        versionList.appendChild(div);
+      });
+    }
+
+    function deleteVersion(idx) {
+      event.stopPropagation();
+      let versions = JSON.parse(localStorage.getItem(VERSION_STORAGE_KEY) || '[]');
+      if (confirm('이 버전을 삭제하시겠습니까?')) {
+        versions.splice(idx, 1);
+        localStorage.setItem(VERSION_STORAGE_KEY, JSON.stringify(versions));
+        renderVersionList();
+      }
+    }
+
+    function clearEditor() {
+      if (!editor.value) return;
+      if (confirm('정말로 원본을 모두 지우시겠습니까?')) {
+        editor.value = '';
+        updatePreview();
+        renderKeywords();
+        localStorage.setItem('highlighter_text', '');
+      }
+    }
+
+    function showFeedback(btn, message, isSuccess) {
+      const originalHtml = btn.innerHTML;
+      btn.innerHTML = isSuccess ? `✅ ${message}` : `❌ ${message}`;
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+      }, 1500);
+    }
+
+    function copyEditor(btn) {
+      if (!editor.value) return;
+      navigator.clipboard.writeText(editor.value).then(() => {
+        showFeedback(btn, '완료', true);
+      }).catch(() => {
+        showFeedback(btn, '실패', false);
+      });
+    }
+
+    async function pasteToEditor(btn) {
+      try {
+        const text = await navigator.clipboard.readText();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        editor.value = editor.value.substring(0, start) + text + editor.value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + text.length;
+        editor.focus();
+        updatePreview();
+        renderKeywords();
+        localStorage.setItem('highlighter_text', editor.value);
+        showFeedback(btn, '완료', true);
+      } catch (err) {
+        showFeedback(btn, '실패', false);
+      }
+    }
+
+    document.getElementById('translate-ko-en-btn').addEventListener('click', () => {
+      const text = editor.value.trim();
+      if (!text) return;
+      window.open(`https://translate.google.com/?sl=ko&tl=en&text=${encodeURIComponent(text)}&op=translate`, '_blank');
+    });
+
+    document.getElementById('translate-en-ko-btn').addEventListener('click', () => {
+      const text = editor.value.trim();
+      if (!text) return;
+      window.open(`https://translate.google.com/?sl=en&tl=ko&text=${encodeURIComponent(text)}&op=translate`, '_blank');
+    });
+
+    document.getElementById('spell-check-btn').addEventListener('click', () => {
+      const text = editor.value.trim();
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('내용이 복사되었습니다. 맞춤법 검사기 사이트에 붙여넣으세요.');
+        window.open('https://nara-speller.co.kr/speller', '_blank');
+      }).catch(() => {
+        alert('복사에 실패했습니다.');
+      });
+    });
+
+    function createColorPalette() {
+      const paletteContainer = document.getElementById('color-palette');
+      const colors = [
+        '#ffc9c9', '#ffd8a8', '#ffe066', '#b2f2bb',
+        '#a5d8ff', '#bac8ff', '#d0bfff', '#fcc2d7'
+      ];
+      colors.forEach(color => {
+        const swatch = document.createElement('div');
+        swatch.className = 'color-swatch';
+        swatch.style.backgroundColor = color;
+        swatch.onclick = () => { newColorInput.value = color; };
+        paletteContainer.appendChild(swatch);
+      });
+    }
+
+    window.onload = () => {
+      const savedFontSize = localStorage.getItem('highlighter_fontSize');
+      if (savedFontSize) {
+        currentFontSize = parseInt(savedFontSize, 10);
+      }
+      applyFontSize();
+
+      loadKeywords();
+      editor.value = localStorage.getItem('highlighter_text') || '';
+      updatePreview();
+      renderVersionList();
+      createColorPalette();
+    };
+
+    editor.addEventListener('input', () => {
+      updatePreview();
+      renderKeywords();
+      localStorage.setItem('highlighter_text', editor.value);
+    });
+  </script>
+</body>
+</html>
